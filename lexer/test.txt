@@ -1,9 +1,8 @@
 #include<stdio.h>
 
-int main()
+void main()
 {
-	//hello
-
-	int a=5/3;
-	return(0);
+	int a=5;
+	/*hello
+	*/
 }
