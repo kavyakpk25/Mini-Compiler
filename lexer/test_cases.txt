@@ -1,0 +1,17 @@
+Rejected:
+#include <stdio.h>
+
+int main()
+{
+	
+}
+
+
+
+Accepted:
+#include <stdio.h>
+
+int main()
+{
+	int x=0;
+}

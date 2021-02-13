@@ -1,9 +1,9 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-
+FILE * yyin;
 %}
-%token ID NUM T_lt T_gt T_lteq T_gteq T_neq T_eqeq T_pl T_min T_mul T_div T_and T_or T_incr T_decr T_not T_eq WHILE INT CHAR FLOAT VOID H MAINTOK INCLUDE BREAK CONTINUE IF ELSE COUT STRING FOR ENDL
+%token ID NUM T_lt T_gt T_lteq T_gteq T_neq T_eqeq T_pl T_min T_mul T_div T_and T_or T_incr T_decr T_not T_eq WHILE INT CHAR FLOAT VOID H MAINTOK INCLUDE BREAK CONTINUE IF ELSE COUT STRING FOR ENDL 
 
 %%
 S
@@ -50,7 +50,6 @@ statement
       | TERNARY_EXPR
       | PRINT
       ;
-
 COND
       : LIT RELOP LIT
       | LIT
@@ -123,13 +122,14 @@ un_boolop
       : T_not
       ;
 
+  ;
 
 %%
-
 #include "lex.yy.c"
-
+      
 int yyerror(){
-  printf("ERROR\n");
+      //yyerrok; yyclearin;
+      printf("Error");
 }
 
 int main(int argc, char* args[])

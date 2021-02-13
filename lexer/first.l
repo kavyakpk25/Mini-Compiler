@@ -18,7 +18,7 @@ digit [0-9]
                     strcat(line,yytext);
                     strcat(line,"\n");
                     fprintf(yyout,"%s",line);
-                    }
+                    };
 
 \/\*([^*]|(\*[^*/]))*    {
                       printf("\033[1;31merror \033[0min line %d : unclosed comment section\n",yylineno);
@@ -27,7 +27,7 @@ digit [0-9]
                       strcat(error,stringNumber);
                       strcat(error," : unclosed comment section\n");
                       fprintf(yyout,"%s",error);
-                    }
+                    };
 
 .*\*\/   {
                       printf("\033[1;31merror \033[0min line %d : unopend comment section\n",yylineno);
@@ -37,29 +37,29 @@ digit [0-9]
                       strcat(error," : unopend comment section\n");
                       fprintf(yyout,"%s",error);
 
-                    }
+                    };
 
 \/\*([^*]|(\*[^*/]))*\*\/   {
                     strcpy(line, "TOKEN_COMMENT ");
                     strcat(line,yytext);
                     strcat(line,"\n");
                     fprintf(yyout,"%s",line);
-                    }
+                    };
 [ \t\n]
 "while" return WHILE;
 "for" return FOR;
 "if" return IF;
 "else" return ELSE;
-"cout" return COUT;
+"cout" return COUT; 
 "endl" return ENDL;
 "break" return BREAK;
 "continue" return CONTINUE;
-"int" return INT;
+"int" {printf("IN int"); return INT;}
 "float" return FLOAT;
 "char" return CHAR;
 "void" return VOID;
-"#include" return INCLUDE;
-"main()" return MAINTOK;
+"#include" {printf("IN include");return INCLUDE;}
+"main()" {printf("IN main");return MAINTOK;}
 {digit}+    return NUM;
 {alpha}({alpha}|{digit})*    return ID;
 {alpha}({alpha}|{digit})*"\.h"?   return H;
