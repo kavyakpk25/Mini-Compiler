@@ -2,9 +2,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 FILE * yyin;
+extern unsigned int SourceCol;
+extern unsigned int SourceLine;
 %}
-%token ID NUM CLASS PUBLIC PRIVATE PROTECTED INT_PTR CHAR_PTR FLOAT_PTR T_col T_lt T_gt T_lteq T_gteq T_sq T_rsq T_lsq T_amp USING NAMESPACE T_neq T_eqeq T_pl T_min T_mul T_div T_and T_or T_incr T_decr T_not T_eq WHILE INT CHAR FLOAT VOID H MAINTOK INCLUDE BREAK CONTINUE IF ELSE COUT STRING FOR ENDL SWITCH CASE DEFAULT RETURN STRING_LIT CHAR_CONST
-
+%locations
+%union{
+	int number;
+	double real;
+	char *string;
+	}
+%token ID NUM CLASS PUBLIC PRIVATE PROTECTED INT_PTR CHAR_PTR FLOAT_PTR BOOL T_TRUE T_FALSE T_col T_lt T_gt T_lteq T_gteq T_sq T_rsq T_lsq T_amp USING NAMESPACE T_neq T_eqeq T_pl T_min T_mul T_div T_and T_or T_incr T_decr T_not T_eq WHILE INT CHAR FLOAT VOID H MAINTOK INCLUDE BREAK CONTINUE IF ELSE COUT STRING FOR ENDL SWITCH CASE DEFAULT RETURN STRING_LIT CHAR_CONST
+%token <number> T_DIGIT
+%token <real> T_REAL
 %%
 S
       : START {printf("Input accepted.\n");exit(0);}
@@ -69,7 +78,6 @@ FUNCTION_DEF
       | VOID ID '(' PARAMS ')' BODY
       | VOID ID '(' ')' BODY
       ;
-
 C
       : C statement ';'
       | C LOOPS
@@ -94,7 +102,7 @@ CLASS_BODY : PUBLIC T_col FUNC_AND_DEC
 
 LOOPS
       : SWITCH '(' LIT ')' '{' SWITCHBODY '}'
-      | IF '(' COND ')' LOOPBODY 
+      | IF '(' COND ')' LOOPBODY {printf("\n%d %d %d \n",@$.first_line,@$.first_column,@$.last_column);}
       | IF '(' COND ')' LOOPBODY ELSE LOOPBODY
       ;
 
@@ -172,15 +180,19 @@ PRINT
       ;
 LIT
       : ID
-      | NUM
       | STRING_LIT 
       | CHAR_CONST
+      | T_DIGIT
+      | T_REAL
+      | T_TRUE
+      | T_FALSE
       ;
 TYPE
       : INT
       | CHAR
       | FLOAT
       | STRING
+      | BOOL
       ;
 PTR_TYPE : INT_PTR
       | FLOAT_PTR
@@ -195,7 +207,7 @@ ARRAY
       : LIT  {printf("IN array def1");} 
       | ARRAY ',' LIT  {printf("IN array def");} 
       ;
-
+OBJ_EXPR
 RELOP
       : T_lt
       | T_gt
