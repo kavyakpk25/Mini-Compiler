@@ -3,7 +3,7 @@
 #include <stdlib.h>
 FILE * yyin;
 %}
-%token ID NUM T_lt T_gt T_lteq T_gteq USING NAMESPACE T_neq T_eqeq T_pl T_min T_mul T_div T_and T_or T_incr T_decr T_not T_eq WHILE INT CHAR FLOAT VOID H MAINTOK INCLUDE BREAK CONTINUE IF ELSE COUT STRING FOR ENDL SWITCH CASE DEFAULT RETURN STRING_CONST CHAR_CONST
+%token ID NUM CLASS PUBLIC PRIVATE PROTECTED INT_PTR CHAR_PTR FLOAT_PTR T_col T_lt T_gt T_lteq T_gteq T_sq T_rsq T_lsq T_amp USING NAMESPACE T_neq T_eqeq T_pl T_min T_mul T_div T_and T_or T_incr T_decr T_not T_eq WHILE INT CHAR FLOAT VOID H MAINTOK INCLUDE BREAK CONTINUE IF ELSE COUT STRING FOR ENDL SWITCH CASE DEFAULT RETURN STRING_LIT CHAR_CONST
 
 %%
 S
@@ -16,14 +16,16 @@ START
       | INCLUDE T_lt ID T_gt START_CODE
       | INCLUDE "\"" ID "\"" START_CODE
       ;
-      
+
 START_CODE : 
+           | USING NAMESPACE ID ';' GLOBAL
            | GLOBAL
            ;
 
 GLOBAL : ASSIGN_EXPR ';'  GLOBAL
       | ARITH_EXPR ';' GLOBAL
       | FUNCTION_DEF GLOBAL;
+      | CLASS_DEF GLOBAL;
       | MAIN 
       ;
 MAIN
@@ -31,8 +33,16 @@ MAIN
       | INT MAINTOK BODY
       | VOID MAINTOK BODY FUNC_AND_DEC
       | INT MAINTOK BODY FUNC_AND_DEC
+      | INT MAINTOK BODY CLASS_REC 
+      | VOID MAINTOK BODY CLASS_REC 
+      | INT MAINTOK BODY FUNC_AND_DEC CLASS_REC
+      | VOID MAINTOK BODY FUNC_AND_DEC CLASS_REC
+      | INT MAINTOK BODY CLASS_REC FUNC_AND_DEC
+      | VOID MAINTOK BODY CLASS_REC FUNC_AND_DEC
       ;
-
+CLASS_REC: CLASS_REC CLASS_DEF
+      | CLASS_DEF 
+      ;
 
 FUNC_AND_DEC: ASSIGN_EXPR ';'  FUNC_AND_DEC
       | ARITH_EXPR ';' FUNC_AND_DEC
@@ -54,6 +64,8 @@ PARAMS : TYPE ID
 FUNCTION_DEF
       : TYPE ID '(' PARAMS ')' BODY
       | TYPE ID '(' ')' BODY
+      | TYPE ID '(' PARAMS ')' ';'
+      | TYPE ID '(' ')' ';'
       | VOID ID '(' PARAMS ')' BODY
       | VOID ID '(' ')' BODY
       ;
@@ -65,24 +77,39 @@ C
       | LOOPS
       ;
 
+CLASS_DEF : CLASS ID '{' CLASS_BODY '}' ';'
+      | CLASS ID '{' '}' ';'
+      ;
+
+CLASS_BODY : PUBLIC T_col FUNC_AND_DEC 
+      | PUBLIC T_col FUNC_AND_DEC CLASS_BODY
+      | PRIVATE T_col FUNC_AND_DEC 
+      | PRIVATE T_col FUNC_AND_DEC CLASS_BODY
+      | PROTECTED T_col FUNC_AND_DEC 
+      | PROTECTED T_col FUNC_AND_DEC CLASS_BODY
+      | PUBLIC T_col
+      | PRIVATE T_col
+      | PROTECTED T_col
+      ;
+
 LOOPS
       : SWITCH '(' LIT ')' '{' SWITCHBODY '}'
       | IF '(' COND ')' LOOPBODY 
-      | IF '(' COND ')' LOOPBODY ELSE LOOPBODY 
+      | IF '(' COND ')' LOOPBODY ELSE LOOPBODY
       ;
 
 SWITCHBODY
-      : CASE LIT ':' SWITCHBODY
-      | CASE LIT ':'
-      | CASE LIT ':' BREAK ';' SWITCHBODY
-      | CASE LIT ':' LOOPBODY BREAK ';' SWITCHBODY
-      | CASE LIT ':' LOOPBODY SWITCHBODY
-      | CASE LIT ':' LOOPBODY BREAK ';'
-      | CASE LIT ':' LOOPBODY
-      | DEFAULT ':' LOOPBODY BREAK ';'
-      | DEFAULT ':' LOOPBODY
-      | DEFAULT ':' BREAK ';'
-      | DEFAULT ':'
+      : CASE LIT T_col SWITCHBODY
+      | CASE LIT T_col
+      | CASE LIT T_col BREAK ';' SWITCHBODY
+      | CASE LIT T_col LOOPBODY BREAK ';' SWITCHBODY
+      | CASE LIT T_col LOOPBODY SWITCHBODY
+      | CASE LIT T_col LOOPBODY BREAK ';'
+      | CASE LIT T_col LOOPBODY
+      | DEFAULT T_col LOOPBODY BREAK ';'
+      | DEFAULT T_col LOOPBODY
+      | DEFAULT T_col BREAK ';'
+      | DEFAULT T_col
       ;
 
 LOOPBODY
@@ -93,9 +120,12 @@ LOOPBODY
   	  ;
 
 statement
-      : ASSIGN_EXPR
+      : DECLARATION
+      | ASSIGN_EXPR
       | ARITH_EXPR
       | TERNARY_EXPR
+      | PTR_EXPR
+      | ARR_EXPR
       | PRINT
       | RETURN 
       | RETURN '(' statement ')'
@@ -114,8 +144,14 @@ COND
 ASSIGN_EXPR
       : ID T_eq ARITH_EXPR
       | TYPE ID T_eq ARITH_EXPR
+      | CHAR_PTR ID T_eq STRING_LIT
       ;
 
+DECLARATION
+      : TYPE ID
+      | DECLARATION ',' ID
+      | CHAR_PTR ID {printf("IN CHAR POINTER DEC");} 
+      ;
 ARITH_EXPR
       : LIT
       | LIT bin_arop ARITH_EXPR
@@ -127,7 +163,7 @@ ARITH_EXPR
       ;
 
 TERNARY_EXPR
-      : '(' COND ')' '?' statement ':' statement
+      : '(' COND ')' '?' statement T_col statement
       ;
 
 PRINT
@@ -137,14 +173,29 @@ PRINT
 LIT
       : ID
       | NUM
-      | STRING 
+      | STRING_LIT 
       | CHAR_CONST
       ;
 TYPE
       : INT
       | CHAR
       | FLOAT
+      | STRING
       ;
+PTR_TYPE : INT_PTR
+      | FLOAT_PTR
+      ;
+PTR_EXPR: PTR_TYPE ID 
+      | PTR_TYPE ID T_eq T_amp ID
+      ;
+ARR_EXPR: TYPE ID T_lsq NUM T_rsq
+      | TYPE ID T_lsq NUM T_rsq T_eq '{' ARRAY '}' {printf("IN arr init");} 
+      ;
+ARRAY
+      : LIT  {printf("IN array def1");} 
+      | ARRAY ',' LIT  {printf("IN array def");} 
+      ;
+
 RELOP
       : T_lt
       | T_gt
@@ -182,7 +233,7 @@ un_boolop
       
 int yyerror(){
       //yyerrok; yyclearin;
-      printf("Error");
+      printf("Error %d",yylineno);
 }
 
 int main(int argc, char* args[])

@@ -24,7 +24,6 @@ SP  (u8|u|U|L)
 ES  (\\(['"\?\\abfnrtv]|[0-7]{1,3}|x[a-fA-F0-9]+))
 WS  [ \t\v\f]
 NL  [\n]
-
 alpha [A-Za-z_]
 digit [0-9]
 %option yylineno
@@ -40,29 +39,38 @@ digit [0-9]
 [ \t\n]
 "while" return WHILE;
 "for" return FOR;
+"class" return CLASS;
+"public" return PUBLIC;
+"private" return PRIVATE;
+"protected" return PROTECTED;
 "if" return IF;
 "else" return ELSE;
-"cout" {printf("IN cout");return COUT; }
+"cout" {printf("IN cout\n");return COUT; }
 "endl" return ENDL;
 "break" return BREAK;
 "continue" return CONTINUE;
-"int" {printf("IN int"); return INT;}
+"int" {printf("IN int\n"); return INT;}
 "float" return FLOAT;
 "char" return CHAR;
 "void" return VOID;
-"case" return CASE;
-"switch" {printf("IN switch ");return SWITCH;}
+"string" return STRING;
+"int*"  {printf("in int pointer\n");return INT_PTR;}
+"float*"  {printf("in float pointer\n");return FLOAT_PTR;}
+"char*"  {printf("in int pointer\n");return CHAR_PTR;}
+"case" {printf("\nIN case\n");return CASE;}
+"switch" {printf("IN switch \n");return SWITCH;}
 "default" return DEFAULT;
-"#include" {printf("IN include");return INCLUDE;}
-"main()" {printf("IN main");return MAINTOK;}
+"#include" {printf("IN include\n");return INCLUDE;}
+"main()" {printf("IN main\n");return MAINTOK;}
 "return" return RETURN;
 {digit}+    return NUM;
 "using" return USING;
 "namespace" return NAMESPACE;
-{alpha}({alpha}|{digit})*     {printf("\nIN id\n"); return ID;}
+
+{alpha}({alpha}|{digit}){0,31}    {printf("\nIN id %s\n",yytext); return ID;}
 {alpha}({alpha}|{digit})*"\.h"?   {printf("\nIN .h %s \n",yylval);return H;}
-\".*\" {printf("STRING[%s]",yytext); return STRING;}
-\'.\' {printf("CHAR[%s]",yytext); return CHAR_CONST;}
+\".*\" {printf("STRING[%s]\n",yytext); return STRING_LIT;}
+\'.\' {printf("CHAR[%s]\n",yytext); return CHAR_CONST;}
 
 "<"   return T_lt;
 ">"     return T_gt;
@@ -80,7 +88,11 @@ digit [0-9]
 "!"     return T_neq;
 "||"    return T_or;
 "&&"    return T_and;
-
+"[]"    return T_sq;
+"["     return T_lsq;
+"]"     return T_rsq;
+"&"     {printf("in amp\n");return T_amp;}
+":"     return T_col;
 .    return yytext[0];
 
 %%
