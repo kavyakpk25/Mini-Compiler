@@ -1,0 +1,77 @@
+a = 10
+func{
+a = 5
+t1 = 3 * 5 
+t2 = t1 / 10 
+t3 = a + t2 
+c = t3
+}
+class1{
+class1.class_function{
+PARAM "INVOKED CLASS FUNCTION WITH VALUE ="
+PARAM d
+PARAM endl
+call ( cout , 3 ) 
+}
+main{
+PARAM 10
+call ( obj1.class_function , 1 ) 
+a1[0] = 1
+a1[4] = 2
+a1[8] = 3
+a1[12] = 4
+a1[16] = 5 
+b1[0] = 1
+b1[4] = 2
+b1[8] = 3
+b1[12] = 4
+b1[16] = 5 
+a = 9
+b = 10
+t4 = 3 + 5 
+t5 = t4 + 5 
+t6 = t5 + 8 
+add = t6
+t7 = 3 - 5 
+sub = t7
+op1 = 5
+op2 = 10
+t8 = op1 > op2 
+gt = t8
+t9 = op1 <= op2 
+lteq = t9
+t10 = op1 && op2 
+log_and = t10
+t11 = op1 || op2 
+log_or = t11
+t12 = a <= b 
+if t12 goto L1
+goto L2
+L1 :
+day = 4
+t13 = day == 1 
+if t13 goto L3
+goto L4
+L3 :
+case1 = 4
+L4 :
+t14 = day == 2 
+if t14 goto L5
+goto L6
+L5 :
+L6 :
+t15 = day == 3 
+if t15 goto L7
+goto L8
+L7 :
+call ( break , 0 ) 
+L8 :
+t16 = day == 4 
+if t16 goto L9
+goto L10
+L9 :
+PARAM "CASE 4\n"
+call ( cout , 1 ) 
+L10 :
+L2 :
+}
